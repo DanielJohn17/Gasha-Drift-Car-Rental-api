@@ -41,7 +41,9 @@ export class ReservationsService {
     }
     const totalDays: number = this.calculateTotalDays(input.startDate, input.endDate);
     const totalPrice: number = totalDays * vehicle.pricePerDay;
-    const paymentScreenshotUrl: string = (await this.storageService.uploadBase64Image(input.paymentScreenshotBase64, 'payments/screenshots')).url;
+    const paymentScreenshotUrl: string = (
+      await this.storageService.uploadBase64Image(input.paymentScreenshotBase64, 'payments/screenshots')
+    ).url;
     const reservation: ReservationEntity = this.reservationsRepository.create({
       vehicleId: vehicle.id,
       customerUserId,
@@ -71,7 +73,10 @@ export class ReservationsService {
     return savedReservation;
   }
 
-  public async listReservations(input: { readonly userId: string; readonly isAdmin: boolean }): Promise<ReservationEntity[]> {
+  public async listReservations(input: {
+    readonly userId: string;
+    readonly isAdmin: boolean;
+  }): Promise<ReservationEntity[]> {
     if (input.isAdmin) {
       return this.reservationsRepository.find({ order: { createdAt: 'DESC' } });
     }
@@ -79,7 +84,9 @@ export class ReservationsService {
   }
 
   public async getReservationById(reservationId: string): Promise<ReservationEntity> {
-    const reservation: ReservationEntity | null = await this.reservationsRepository.findOne({ where: { id: reservationId } });
+    const reservation: ReservationEntity | null = await this.reservationsRepository.findOne({
+      where: { id: reservationId },
+    });
     if (!reservation) {
       throw new NotFoundException('Reservation not found.');
     }

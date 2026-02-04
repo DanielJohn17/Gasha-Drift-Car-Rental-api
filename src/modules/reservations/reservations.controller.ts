@@ -39,7 +39,10 @@ export class ReservationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  public async getReservationById(@Req() request: { readonly user: JwtUser }, @Param('id') id: string): Promise<ReservationEntity> {
+  public async getReservationById(
+    @Req() request: { readonly user: JwtUser },
+    @Param('id') id: string,
+  ): Promise<ReservationEntity> {
     const reservation: ReservationEntity = await this.reservationsService.getReservationById(id);
     const isAdmin: boolean = request.user.role === UserRole.Admin;
     if (isAdmin) {
@@ -54,7 +57,10 @@ export class ReservationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Patch(':id/status')
-  public updateReservationStatus(@Param('id') id: string, @Body() body: UpdateReservationStatusDto): Promise<ReservationEntity> {
+  public updateReservationStatus(
+    @Param('id') id: string,
+    @Body() body: UpdateReservationStatusDto,
+  ): Promise<ReservationEntity> {
     return this.reservationsService.updateReservationStatus(id, body.status);
   }
 }

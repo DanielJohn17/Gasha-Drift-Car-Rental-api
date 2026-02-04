@@ -77,26 +77,26 @@ Generate code, corrections, and refactorings that comply with the basic principl
 
 - Use modular architecture.
 - Encapsulate the API in modules:
-    - One module per main domain/route.
-    - One controller for its primary route (and secondary controllers if needed).
+  - One module per main domain/route.
+  - One controller for its primary route (and secondary controllers if needed).
 
 - A models folder:
-    - DTOs validated with class-validator for inputs.
-    - Simple types/interfaces for outputs.
+  - DTOs validated with class-validator for inputs.
+  - Simple types/interfaces for outputs.
 
 - A services module:
-    - Entities with TypeORM for data persistence using decorators.
-    - One service per entity/aggregate root.
-    - Use TypeORM Repositories injected via @InjectRepository().
+  - Entities with TypeORM for data persistence using decorators.
+  - One service per entity/aggregate root.
+  - Use TypeORM Repositories injected via @InjectRepository().
 
 - A core module for global Nest artifacts:
-    - Global filters (exception handling).
-    - Global middlewares.
-    - Guards (permissions).
-    - Interceptors.
+  - Global filters (exception handling).
+  - Global middlewares.
+  - Guards (permissions).
+  - Interceptors.
 
 - A shared module for cross-cutting concerns:
-    - Utilities and shared business logic.
+  - Utilities and shared business logic.
 
 ### Testing
 

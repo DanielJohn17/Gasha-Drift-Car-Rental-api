@@ -10,7 +10,11 @@ import { StorageModule } from '@/shared/storage/storage.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ReservationEntity, VehicleEntity, PaymentProofEntity, UserEntity]), StorageModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([ReservationEntity, VehicleEntity, PaymentProofEntity, UserEntity]),
+    StorageModule,
+    AuthModule,
+  ],
   controllers: [ReservationsController],
   providers: [ReservationsService],
   exports: [ReservationsService, TypeOrmModule],

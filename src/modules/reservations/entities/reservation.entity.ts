@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { ReservationStatus } from '../enums/reservation-status.enum';
 import { VehicleEntity } from '@/modules/vehicles/entities/vehicle.entity';
 import { UserEntity } from '@/modules/users/entities/user.entity';

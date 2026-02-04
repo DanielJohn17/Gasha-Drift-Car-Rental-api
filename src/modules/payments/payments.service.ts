@@ -17,17 +17,25 @@ export class PaymentsService {
     return this.paymentProofRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  public async verifyPaymentProof(paymentProofId: string, input: { readonly adminUserId: string; readonly status: PaymentProofStatus }): Promise<PaymentProofEntity> {
-    const proof: PaymentProofEntity | null = await this.paymentProofRepository.findOne({ where: { id: paymentProofId } });
+  public async verifyPaymentProof(
+    paymentProofId: string,
+    input: { readonly adminUserId: string; readonly status: PaymentProofStatus },
+  ): Promise<PaymentProofEntity> {
+    const proof: PaymentProofEntity | null = await this.paymentProofRepository.findOne({
+      where: { id: paymentProofId },
+    });
     if (!proof) {
       throw new NotFoundException('Payment proof not found.');
     }
     proof.status = input.status;
     proof.reviewedByAdminId = input.adminUserId;
     const savedProof: PaymentProofEntity = await this.paymentProofRepository.save(proof);
-    const reservation: ReservationEntity | null = await this.reservationsRepository.findOne({ where: { id: proof.reservationId } });
+    const reservation: ReservationEntity | null = await this.reservationsRepository.findOne({
+      where: { id: proof.reservationId },
+    });
     if (reservation) {
-      reservation.status = input.status === PaymentProofStatus.Verified ? ReservationStatus.Confirmed : ReservationStatus.Cancelled;
+      reservation.status =
+        input.status === PaymentProofStatus.Verified ? ReservationStatus.Confirmed : ReservationStatus.Cancelled;
       await this.reservationsRepository.save(reservation);
     }
     return savedProof;

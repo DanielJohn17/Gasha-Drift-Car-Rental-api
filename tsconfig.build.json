@@ -1,10 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test",
-    "**/*.spec.ts",
-    "Gasha-Drift-Car-Rental"
-  ]
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts", "Gasha-Drift-Car-Rental"]
 }

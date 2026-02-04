@@ -10,12 +10,12 @@ import { VehicleStatus } from './enums/vehicle-status.enum';
 
 @Injectable()
 export class VehiclesService {
-  public constructor(
-    @InjectRepository(VehicleEntity) private readonly vehiclesRepository: Repository<VehicleEntity>,
-  ) {}
+  public constructor(@InjectRepository(VehicleEntity) private readonly vehiclesRepository: Repository<VehicleEntity>) {}
 
   public async createVehicle(input: CreateVehicleDto): Promise<VehicleEntity> {
-    const existing: VehicleEntity | null = await this.vehiclesRepository.findOne({ where: { licensePlate: input.licensePlate } });
+    const existing: VehicleEntity | null = await this.vehiclesRepository.findOne({
+      where: { licensePlate: input.licensePlate },
+    });
     if (existing) {
       throw new ConflictException('License plate already exists.');
     }
@@ -38,7 +38,9 @@ export class VehiclesService {
   public async updateVehicle(vehicleId: string, input: UpdateVehicleDto): Promise<VehicleEntity> {
     const vehicle: VehicleEntity = await this.getVehicleById(vehicleId);
     if (input.licensePlate && input.licensePlate !== vehicle.licensePlate) {
-      const existing: VehicleEntity | null = await this.vehiclesRepository.findOne({ where: { licensePlate: input.licensePlate } });
+      const existing: VehicleEntity | null = await this.vehiclesRepository.findOne({
+        where: { licensePlate: input.licensePlate },
+      });
       if (existing) {
         throw new ConflictException('License plate already exists.');
       }
@@ -102,7 +104,9 @@ export class VehiclesService {
     if (input.status) {
       query.andWhere('vehicle.status = :status', { status: input.status });
     } else {
-      query.andWhere('vehicle.status IN (:...statuses)', { statuses: [VehicleStatus.Available, VehicleStatus.Reserved] });
+      query.andWhere('vehicle.status IN (:...statuses)', {
+        statuses: [VehicleStatus.Available, VehicleStatus.Reserved],
+      });
     }
     query.andWhere(qb => {
       const subQuery = qb
