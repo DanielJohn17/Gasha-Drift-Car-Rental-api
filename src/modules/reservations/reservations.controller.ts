@@ -8,7 +8,9 @@ import { RolesGuard } from '@/modules/auth/guards/roles.guard';
 import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { UserRole } from '@/modules/users/enums/user-role.enum';
 import { UpdateReservationStatusDto } from './dtos/update-reservation-status.dto';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('reservations')
 @Controller('reservations')
 export class ReservationsController {
   public constructor(private readonly reservationsService: ReservationsService) {}
@@ -16,6 +18,9 @@ export class ReservationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Customer)
   @Post()
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'Create reservation (customer)' })
+  @ApiOkResponse({ description: 'Reservation created.' })
   public createReservation(
     @Req() request: { readonly user: JwtUser },
     @Body() body: CreateReservationDto,
@@ -25,6 +30,9 @@ export class ReservationsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'List reservations (admin sees all; customer sees own)' })
+  @ApiOkResponse({ description: 'Reservations list.' })
   public listReservations(@Req() request: { readonly user: JwtUser }): Promise<ReservationEntity[]> {
     const isAdmin: boolean = request.user.role === UserRole.Admin;
     return this.reservationsService.listReservations({ userId: request.user.userId, isAdmin });
@@ -33,12 +41,19 @@ export class ReservationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Get('admin/test')
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'Admin smoke test endpoint' })
+  @ApiOkResponse({ description: 'Admin guard OK.' })
   public getAdminTest(): { readonly ok: true } {
     return { ok: true } as const;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'Get reservation by ID (admin or owner)' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiOkResponse({ description: 'Reservation details.' })
   public async getReservationById(
     @Req() request: { readonly user: JwtUser },
     @Param('id') id: string,
@@ -57,6 +72,10 @@ export class ReservationsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Admin)
   @Patch(':id/status')
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'Update reservation status (admin)' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiOkResponse({ description: 'Reservation status updated.' })
   public updateReservationStatus(
     @Param('id') id: string,
     @Body() body: UpdateReservationStatusDto,
