@@ -3,11 +3,12 @@ import { VehiclesService } from './vehicles.service';
 import { VehicleEntity } from './entities/vehicle.entity';
 import { CreateVehicleDto } from './dtos/create-vehicle.dto';
 import { UpdateVehicleDto } from './dtos/update-vehicle.dto';
+import { PaginationQueryDto, PaginatedResponse } from '@/common/dto/pagination.dto';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/modules/auth/guards/roles.guard';
 import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { UserRole } from '@/modules/users/enums/user-role.enum';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('vehicles')
 @Controller('vehicles')
@@ -16,15 +17,30 @@ export class VehiclesController {
 
   @Get()
   @ApiOperation({ summary: 'List vehicles (optionally filter by availability date range)' })
-  @ApiOkResponse({ description: 'Vehicles list.' })
+  @ApiOkResponse({ description: 'Vaginated vehicles list.' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 20, max: 100)' })
+  @ApiQuery({ name: 'location', required: false, type: String })
+  @ApiQuery({ name: 'type', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
   public listVehicles(
+    @Query() paginationQuery: PaginationQueryDto,
     @Query('location') location?: string,
     @Query('type') type?: string,
     @Query('status') status?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-  ): Promise<VehicleEntity[]> {
-    return this.vehiclesService.listVehicles({ location, type, status, startDate, endDate });
+  ): Promise<PaginatedResponse<VehicleEntity>> {
+    return this.vehiclesService.listVehicles({
+      ...paginationQuery,
+      location,
+      type,
+      status,
+      startDate,
+      endDate,
+    });
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

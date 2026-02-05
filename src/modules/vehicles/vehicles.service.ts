@@ -7,6 +7,7 @@ import { UpdateVehicleDto } from './dtos/update-vehicle.dto';
 import { ReservationEntity } from '@/modules/reservations/entities/reservation.entity';
 import { ReservationStatus } from '@/modules/reservations/enums/reservation-status.enum';
 import { VehicleStatus } from './enums/vehicle-status.enum';
+import { PaginatedResponse, createPaginationMeta } from '@/common/dto/pagination.dto';
 
 @Injectable()
 export class VehiclesService {
@@ -59,14 +60,23 @@ export class VehiclesService {
   }
 
   public async listVehicles(input: {
+    readonly page?: number;
+    readonly limit?: number;
     readonly location?: string;
     readonly type?: string;
     readonly status?: string;
     readonly startDate?: string;
     readonly endDate?: string;
-  }): Promise<VehicleEntity[]> {
+  }): Promise<PaginatedResponse<VehicleEntity>> {
+    const page = input.page ?? 1;
+    const limit = input.limit ?? 20;
+    const skip = (page - 1) * limit;
+
     if (input.startDate && input.endDate) {
       return this.listAvailableVehicles({
+        page,
+        limit,
+        skip,
         location: input.location,
         type: input.type,
         status: input.status,
@@ -74,6 +84,7 @@ export class VehiclesService {
         endDate: input.endDate,
       });
     }
+
     const query = this.vehiclesRepository.createQueryBuilder('vehicle');
     if (input.location) {
       query.andWhere('vehicle.location = :location', { location: input.location });
@@ -84,16 +95,25 @@ export class VehiclesService {
     if (input.status) {
       query.andWhere('vehicle.status = :status', { status: input.status });
     }
-    return query.orderBy('vehicle.createdAt', 'DESC').getMany();
+
+    const [vehicles, total] = await query.orderBy('vehicle.createdAt', 'DESC').skip(skip).take(limit).getManyAndCount();
+
+    return {
+      data: vehicles,
+      meta: createPaginationMeta(total, page, limit),
+    };
   }
 
   private async listAvailableVehicles(input: {
+    readonly page: number;
+    readonly limit: number;
+    readonly skip: number;
     readonly location?: string;
     readonly type?: string;
     readonly status?: string;
     readonly startDate: string;
     readonly endDate: string;
-  }): Promise<VehicleEntity[]> {
+  }): Promise<PaginatedResponse<VehicleEntity>> {
     const query = this.vehiclesRepository.createQueryBuilder('vehicle');
     if (input.location) {
       query.andWhere('vehicle.location = :location', { location: input.location });
@@ -122,6 +142,16 @@ export class VehiclesService {
         .getQuery();
       return `NOT EXISTS (${subQuery})`;
     });
-    return query.orderBy('vehicle.createdAt', 'DESC').getMany();
+
+    const [vehicles, total] = await query
+      .orderBy('vehicle.createdAt', 'DESC')
+      .skip(input.skip)
+      .take(input.limit)
+      .getManyAndCount();
+
+    return {
+      data: vehicles,
+      meta: createPaginationMeta(total, input.page, input.limit),
+    };
   }
 }
