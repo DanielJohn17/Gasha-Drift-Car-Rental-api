@@ -10,6 +10,22 @@ interface ErrorResponse {
   details?: unknown;
 }
 
+type PayloadTooLargeError = Error & {
+  readonly type?: unknown;
+  readonly status?: unknown;
+  readonly statusCode?: unknown;
+};
+
+const isPayloadTooLargeError = (exception: unknown): exception is PayloadTooLargeError => {
+  if (!(exception instanceof Error)) {
+    return false;
+  }
+  const payloadTooLargeException: PayloadTooLargeError = exception as PayloadTooLargeError;
+  const hasPayloadTooLargeName: boolean = payloadTooLargeException.name === 'PayloadTooLargeError';
+  const hasEntityTooLargeType: boolean = payloadTooLargeException.type === 'entity.too.large';
+  const hasPayloadTooLargeStatus: boolean = payloadTooLargeException.status === HttpStatus.PAYLOAD_TOO_LARGE || payloadTooLargeException.statusCode === HttpStatus.PAYLOAD_TOO_LARGE;
+  return hasPayloadTooLargeName || hasEntityTooLargeType || hasPayloadTooLargeStatus;
+};
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

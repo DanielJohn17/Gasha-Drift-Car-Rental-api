@@ -2,12 +2,17 @@ import 'reflect-metadata';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 const bootstrap = async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);
+
+  const requestBodyLimit: string = process.env.REQUEST_BODY_LIMIT ?? '2mb';
+  app.use(json({ limit: requestBodyLimit }));
+  app.use(urlencoded({ limit: requestBodyLimit, extended: true }));
 
   // Global prefix
   app.setGlobalPrefix('api');
